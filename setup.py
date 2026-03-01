@@ -1,33 +1,21 @@
-from setuptools import find_packages, setup
+from setuptools import setup
 
 package_name = 'new_bot'
 
 setup(
     name=package_name,
     version='0.0.0',
-    packages=find_packages(exclude=['test']),
+    packages=['new_bot'],
     data_files=[
-        # Standard ROS2 package registration
         ('share/ament_index/resource_index/packages',
             ['resource/new_bot']),
         ('share/new_bot', ['package.xml']),
-        
-        # Launch files (if you make any later)
-        ('share/new_bot/launch', [
-            # add your launch files here if you create them, e.g.
-            # 'launch/launch_sim.launch.py'
-        ]),
-        
-        # URDF / Xacro files
         ('share/new_bot/description', [
             'description/robot.urdf.xacro',
             'description/robot_core.xacro',
             'description/gazebo_control.xacro',
-            'description/inertial_macros.xacro'
-        ]),
-        
-        # Mesh files
-        ('share/new_bot/description/meshes', [
+            'description/inertial_macros.xacro',
+            # Add all STL files here
             'description/meshes/base_link.STL',
             'description/meshes/camera_link.STL',
             'description/meshes/camera_collision.STL',
@@ -37,18 +25,22 @@ setup(
             'description/meshes/left_wheel.STL',
             'description/meshes/right_wheel.STL'
         ]),
-        
+        ('share/new_bot/launch', [
+            # Add launch files if/when you have them
+        ]),
+        ('share/new_bot/config', [
+            # Add config files if you have them
+        ])
     ],
     install_requires=['setuptools'],
     zip_safe=True,
     maintainer='jagroop',
     maintainer_email='jagroop18randhawa@gmail.com',
-    description='TODO: Package description',
-    license='TODO: License declaration',
-    tests_require=['pytest'],
+    description='ROS2 package for new_bot',
+    license='MIT',
     entry_points={
         'console_scripts': [
-            # Add ROS2 nodes here if you have any
+            'cmd_vel_bridge = new_bot.cmd_vel_bridge.cmd_vel_bridge_node:main',
         ],
     },
 )
