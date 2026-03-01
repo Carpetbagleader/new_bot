@@ -10,12 +10,17 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/new_bot']),
         ('share/new_bot', ['package.xml']),
+
+        # Install URDF / Xacro files
         ('share/new_bot/description', [
             'description/robot.urdf.xacro',
             'description/robot_core.xacro',
             'description/gazebo_control.xacro',
             'description/inertial_macros.xacro',
-            # Add all STL files here
+        ]),
+
+        # Install mesh files into proper subfolder
+        ('share/new_bot/description/meshes', [
             'description/meshes/base_link.STL',
             'description/meshes/camera_link.STL',
             'description/meshes/camera_collision.STL',
@@ -23,14 +28,13 @@ setup(
             'description/meshes/laser_frame.STL',
             'description/meshes/lidar_collision.STL',
             'description/meshes/left_wheel.STL',
-            'description/meshes/right_wheel.STL'
+            'description/meshes/right_wheel.STL',
         ]),
+
+        # Launch files
         ('share/new_bot/launch', [
-            # Add launch files if/when you have them
+            'launch/robot.launch.py',
         ]),
-        ('share/new_bot/config', [
-            # Add config files if you have them
-        ])
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -40,7 +44,7 @@ setup(
     license='MIT',
     entry_points={
         'console_scripts': [
-            'cmd_vel_bridge = new_bot.cmd_vel_bridge.cmd_vel_bridge_node:main',
+            'cmd_vel_bridge = new_bot.cmd_vel_bridge_node:main',
         ],
     },
 )
