@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
+     Commit Version: 1.6.0-4-g7f85cfe  Build Version: 1.6.7995.38578
+     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  
+<!-- BASE LINK -->
+
+    <link
+    name="base_link">
+     <inertial>
+       <origin
+        xyz="0.070133662897501 0.00354955354888109 0.0183200114204214"
+        rpy="0 0 0" />
+      <mass
+        value="0.556112519731525" />
+      <inertia
+        ixx="0.00154815109045063"
+        ixy="0.00010780862380031"
+        ixz="0.000221604200759326"
+        iyy="0.0027617246804416"
+        iyz="1.83612061370921E-05"
+        izz="0.00395406219863791" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="file://$(find new_bot)/description/meshes/base_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.250980392156863 0.250980392156863 0.250980392156863 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="file://$(find new_bot)/description/meshes/base_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  
+  <gazebo reference="base_link">
+    <material>Gazebo/Black</material>
+  </gazebo>
+
+ <!-- LEFT WHEEL LINK -->
+   <link
+    name="left_wheel">
+    <inertial>
+      <origin
+        xyz="6.93889390390723E-18 0 0"
+        rpy="0 0 0" />
+      <mass
+        value="0.10163975077205" />
+      <inertia
+        ixx="3.2132983707622E-05"
+        ixy="3.03239240453886E-19"
+        ixz="-1.94584643807998E-21"
+        iyy="5.36784933764888E-05"
+        iyz="-3.01898169232286E-21"
+        izz="3.2132983707622E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="file://$(find new_bot)/description/meshes/left_wheel.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0 0 0.501960784313725 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="file://$(find new_bot)/description/meshes/left_wheel.STL" />
+      </geometry>
+    </collision>
+  </link>
+
+  <gazebo reference="left_wheel">
+    <material>Gazebo/Blue</material>
+  </gazebo>
+
+
+  <joint
+    name="left_wheel_joint"
+    type="continuous">
+    <origin
+      xyz="0.001 0.12868 0.0235"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="left_wheel" />
+    <axis
+      xyz="0 1 0" />
+  </joint>
+
+
+<!-- RIGHT WHEEL LINK -->
+
+   <link
+    name="right_wheel">
+    <inertial>
+      <origin
+        xyz="-1.38777878078145E-17 -2.77555756156289E-17 -1.38777878078145E-17"
+        rpy="0 0 0" />
+      <mass
+        value="0.10163975077205" />
+      <inertia
+        ixx="3.2132983707622E-05"
+        ixy="3.0244660672499E-19"
+        ixz="-1.94584643807989E-21"
+        iyy="5.36784933764888E-05"
+        iyz="3.88380233146956E-21"
+        izz="3.2132983707622E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="file://$(find new_bot)/description/meshes/right_wheel.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0 0 0.501960784313725 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="file://$(find new_bot)/description/meshes/right_wheel.STL" />
+      </geometry>
+    </collision>
+  </link>
+
+  <gazebo reference="right_wheel">
+    <material>Gazebo/Blue</material>
+  </gazebo>
+
+
+  <joint
+    name="right_wheel_joint"
+    type="continuous">
+    <origin
+      xyz="0.001 -0.12868 0.0235"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="right_wheel" />
+    <axis
+      xyz="0 -1 0" />
+  </joint>
+
+
+<!-- LIDAR LINK-->
+
+
+  <link name="laser_frame">
+    <inertial>
+      <origin
+        xyz="-0.0067665301166636 9.19261110876313E-05 -0.00838187226715975"
+        rpy="0 0 0" />
+      <mass
+        value="0.174023656294632" />
+      <inertia
+        ixx="8.0412346059381E-05"
+        ixy="-1.04874872480737E-07"
+        ixz="-2.06933187729991E-05"
+        iyy="0.000125629651580714"
+        iyz="4.04290059384042E-07"
+        izz="0.000143604492343178" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="file://$(find new_bot)/description/meshes/laser_frame.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="file://$(find new_bot)/description/meshes/lidar_collision.STL" />
+      </geometry>
+    </collision>
+  </link>
+
+  <gazebo reference="laser_frame">
+    <material>Gazebo/Orange</material>
+
+            <sensor name="laser" type="ray">
+            <pose> 0 0 0 0 0 0 </pose>
+            <visualize>true</visualize>
+            <update_rate>10</update_rate>
+            <ray>
+                <scan>
+                    <horizontal>
+                        <samples>360</samples>
+                        <min_angle>-3.14</min_angle>
+                        <max_angle>3.14</max_angle>
+                    </horizontal>
+                </scan>
+                <range>
+                    <min>0.3</min>
+                    <max>12</max>
+                </range>
+            </ray>
+            <plugin name="laser_controller" filename="libgazebo_ros_ray_sensor.so">
+                <ros>
+                    <argument>~/out:=scan</argument>
+                </ros>
+                <output_type>sensor_msgs/LaserScan</output_type>
+                <frame_name>laser_frame</frame_name>
+            </plugin>
+        </sensor>
+  </gazebo>
+
+  <joint
+    name="laser_joint"
+    type="fixed">
+    <origin
+      xyz="0.104800054804252 0 0.0820000000000001"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="laser_frame" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+
+
+<!-- CAMERA LINK-->
+
+
+    <link
+    name="camera_link">
+    <inertial>
+      <origin
+        xyz="-0.0103584698596122 -2.01596126545994E-05 0.00163484283690582"
+        rpy="0 0 0" />
+      <mass
+        value="0.00529235477598514" />
+      <inertia
+        ixx="5.17063055319424E-07"
+        ixy="3.88296936830359E-13"
+        ixz="-1.96692485943055E-09"
+        iyy="1.9007613450553E-07"
+        iyz="2.34133392020719E-10"
+        izz="3.37850233450208E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="file://$(find new_bot)/description/meshes/camera_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.250980392156863 0.250980392156863 0.250980392156863 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="file://$(find new_bot)/description/meshes/camera_collision.STL" />
+      </geometry>
+    </collision>
+  </link>
+
+  <gazebo reference="camera_link">
+    <material>Gazebo/Orange</material>
+  </gazebo>
+
+   <joint
+    name="camera_joint"
+    type="fixed">
+    <origin
+      xyz="0.16129 0 0.05345"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="camera_link" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+
+
+<!--CASTER WHEEL LINK-->
+
+  <link
+    name="caster_wheel">
+    <inertial>
+      <origin
+        xyz="2.77555756156289E-17 0 1.38777878078145E-17"
+        rpy="0 0 0" />
+      <mass
+        value="0.00836574047989968" />
+      <inertia
+        ixx="1.34931028200302E-07"
+        ixy="-4.09702557397515E-24"
+        ixz="0"
+        iyy="1.34931028200302E-07"
+        iyz="5.91319576211689E-39"
+        izz="1.34931028200302E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="file://$(find new_bot)/description/meshes/caster_wheel.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.529411764705882 0.549019607843137 0.549019607843137 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="file://$(find new_bot)/description/meshes/caster_wheel.STL" />
+      </geometry>
+    </collision>
+  </link>
+  
+  <gazebo reference="caster_wheel">
+    <material>Gazebo/White</material>
+    <mu1 value="0.001"/>
+    <mu2 value="0.001"/>
+  </gazebo>
+
+  <joint
+    name="caster_wheel_joint"
+    type="fixed">
+    <origin
+      xyz="0.18465 0 -0.00265"
+      rpy="1.5708 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="caster_wheel" />
+    <axis
+      xyz="0 0 0" />
+    <dynamics
+      friction="0.001" />
+  </joint>
+</robot>
