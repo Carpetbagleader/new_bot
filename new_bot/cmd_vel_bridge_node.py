@@ -7,16 +7,27 @@ import serial
 class CmdVelBridge(Node):
     def __init__(self):
         super().__init__('cmd_vel_bridge')
-        # This port is for the Pi; you can change when running on Pi
-        self.ser = serial.Serial('/dev/ttyACM0', 115200, timeout=1)
+        self.ser = serial.Serial('/dev/ttyACM0', 57600, timeout=1)  # MUST match Arduino BAUDRATE
         self.sub = self.create_subscription(Twist, '/cmd_vel', self.cmd_vel_callback, 10)
         self.get_logger().info("CmdVelBridge node started, publishing to Arduino...")
 
     def cmd_vel_callback(self, msg):
-        linear = int(msg.linear.x * 100)
-        angular = int(msg.angular.z * 100)
-        command = f"L{linear} A{angular}\n"
-        self.ser.write(command.encode('utf-8'))
+        # Simple differential drive mixing
+        linear = msg.linear.x
+        angular = msg.angular.z
+
+        left = linear - angular
+        right = linear + angular
+
+        # Scale to PWM range
+        max_pwm = 255
+        left_pwm = int(max(-1.0, min(1.0, left)) * max_pwm)
+        right_pwm = int(max(-1.0, min(1.0, right)) * max_pwm)
+
+        # Send RAW PWM command to ROSArduinoBridge firmware
+        command = f"m {left_pwm} {right_pwm}\r"
+        self.ser.write(command.encode())
+
         self.get_logger().info(f"Sent: {command.strip()}")
 
 def main(args=None):
