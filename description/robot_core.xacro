@@ -179,7 +179,7 @@
 <!-- LIDAR LINK-->
 
 
-  <link name="laser_frame">
+  <link name="laser">
     <inertial>
       <origin
         xyz="-0.0067665301166636 9.19261110876313E-05 -0.00838187226715975"
