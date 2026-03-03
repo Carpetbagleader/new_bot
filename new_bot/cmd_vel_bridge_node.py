@@ -12,23 +12,21 @@ class CmdVelBridge(Node):
         self.get_logger().info("CmdVelBridge node started, publishing to Arduino...")
 
     def cmd_vel_callback(self, msg):
-        # Simple differential drive mixing
+        # Send your usual motor command
         linear = msg.linear.x
         angular = msg.angular.z
-
-        left = linear - angular
-        right = linear + angular
-
-        # Scale to PWM range
         max_pwm = 255
-        left_pwm = int(max(-1.0, min(1.0, left)) * max_pwm)
-        right_pwm = int(max(-1.0, min(1.0, right)) * max_pwm)
-
-        # Send RAW PWM command to ROSArduinoBridge firmware
+        left_pwm = int(max(-1.0, min(1.0, linear - angular)) * max_pwm)
+        right_pwm = int(max(-1.0, min(1.0, linear + angular)) * max_pwm)
         command = f"m {left_pwm} {right_pwm}\r"
         self.ser.write(command.encode())
-
         self.get_logger().info(f"Sent: {command.strip()}")
+
+        # READ any encoder lines Arduino prints
+        while self.ser.in_waiting > 0:
+            line = self.ser.readline().decode('utf-8').strip()
+            if line:  # print non-empty lines
+                self.get_logger().info(f"Arduino says: {line}")
 
 def main(args=None):
     rclpy.init(args=args)
