@@ -1,41 +1,32 @@
 from launch import LaunchDescription
 from launch_ros.actions import Node
-from launch.substitutions import Command
-from launch_ros.substitutions import FindPackageShare
-from launch.substitutions import PathJoinSubstitution
+from launch.actions import IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+import os
 
 def generate_launch_description():
-
-    pkg_share = FindPackageShare(package='new_bot').find('new_bot')
-
-    xacro_file = PathJoinSubstitution([
-        FindPackageShare('new_bot'),
-        'description',
-        'robot.urdf.xacro'
-    ])
-
-    robot_description = {
-        'robot_description': Command(['xacro ', xacro_file])
-    }
+    pkg_share = os.path.join(os.getenv('HOME'), 'ros2_ws', 'src', 'rplidar_ros', 'launch')
 
     return LaunchDescription([
-
-        Node(
-            package='robot_state_publisher',
-            executable='robot_state_publisher',
-            output='screen',
-            parameters=[robot_description]
-        ),
-
+        # CmdVel bridge + odometry
         Node(
             package='new_bot',
             executable='cmd_vel_bridge',
+            name='cmd_vel_bridge',
             output='screen'
         ),
 
+        # Robot state publisher (URDF must be fully expanded)
         Node(
-            package='rviz2',
-            executable='rviz2',
-            output='screen'
+            package='robot_state_publisher',
+            executable='robot_state_publisher',
+            name='robot_state_publisher',
+            output='screen',
+            parameters=[{'robot_description': '<insert expanded URDF path here>'}]
         ),
+
+        # Include LiDAR launch
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(os.path.join(pkg_share, 'rplidar_a1_launch.py'))
+        )
     ])

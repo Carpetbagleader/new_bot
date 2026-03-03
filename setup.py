@@ -34,6 +34,7 @@ setup(
         # Launch files
         ('share/new_bot/launch', [
             'launch/robot.launch.py',
+            'launch/dev.launch.py',
         ]),
     ],
     install_requires=['setuptools'],
