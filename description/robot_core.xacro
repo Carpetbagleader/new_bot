@@ -219,7 +219,7 @@
     </collision>
   </link>
 
-  <gazebo reference="laser_frame">
+  <gazebo reference="laser">
     <material>Gazebo/Orange</material>
 
             <sensor name="laser" type="ray">
@@ -258,7 +258,7 @@
     <parent
       link="base_link" />
     <child
-      link="laser_frame" />
+      link="laser" />
     <axis
       xyz="0 0 0" />
   </joint>
