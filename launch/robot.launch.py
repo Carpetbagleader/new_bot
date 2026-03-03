@@ -17,7 +17,7 @@ def generate_launch_description():
     ])
 
     robot_description = {
-        'robot_description': Command(['xacro', xacro_file])
+        'robot_description': Command(['xacro ', xacro_file])
     }
 
     # ----- Include RPLidar launch -----
