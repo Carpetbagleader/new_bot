@@ -1,32 +1,53 @@
 from launch import LaunchDescription
 from launch_ros.actions import Node
+from launch.substitutions import Command, PathJoinSubstitution
+from launch_ros.substitutions import FindPackageShare
 from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 import os
 
+
 def generate_launch_description():
-    pkg_share = os.path.join(os.getenv('HOME'), 'ros2_ws', 'src', 'rplidar_ros', 'launch')
+
+    # ----- Robot Description via XACRO (same as your old working version) -----
+    xacro_file = PathJoinSubstitution([
+        FindPackageShare('new_bot'),
+        'description',
+        'robot.urdf.xacro'
+    ])
+
+    robot_description = {
+        'robot_description': Command(['xacro', xacro_file])
+    }
+
+    # ----- Include RPLidar launch -----
+    rplidar_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution([
+                FindPackageShare('rplidar_ros'),
+                'launch',
+                'rplidar_a1_launch.py'
+            ])
+        )
+    )
 
     return LaunchDescription([
-        # CmdVel bridge + odometry
-        Node(
-            package='new_bot',
-            executable='cmd_vel_bridge',
-            name='cmd_vel_bridge',
-            output='screen'
-        ),
 
-        # Robot state publisher (URDF must be fully expanded)
+        # Robot state publisher (needed for TF tree)
         Node(
             package='robot_state_publisher',
             executable='robot_state_publisher',
-            name='robot_state_publisher',
             output='screen',
-            parameters=[{'robot_description': '<insert expanded URDF path here>'}]
+            parameters=[robot_description]
         ),
 
-        # Include LiDAR launch
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(os.path.join(pkg_share, 'rplidar_a1_launch.py'))
-        )
+        # Your motor + odometry bridge
+        Node(
+            package='new_bot',
+            executable='cmd_vel_bridge',
+            output='screen'
+        ),
+
+        # LiDAR
+        rplidar_launch,
     ])
