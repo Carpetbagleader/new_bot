@@ -5,12 +5,13 @@ from rclpy.node import Node
 
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
-from sensor_msgs.msg import JointState
+from sensor_msgs.msg import JointState, LaserScan
 from geometry_msgs.msg import TransformStamped
 from tf2_ros import TransformBroadcaster
 
 import serial
 import math
+import copy
 
 
 class CmdVelBridge(Node):
@@ -27,9 +28,13 @@ class CmdVelBridge(Node):
         self.joint_pub = self.create_publisher(JointState, '/joint_states', 10)
         self.tf_broadcaster = TransformBroadcaster(self)
 
+        # ---------------- LASER FIX ----------------
+        self.laser_sub = self.create_subscription(LaserScan, '/scan', self.laser_callback, 10)
+        self.laser_pub = self.create_publisher(LaserScan, '/scan_fixed', 10)
+
         # ---------------- ROBOT PARAMETERS ----------------
         self.wheel_radius = 0.065             # meters
-        self.wheel_base = 0.2794              # meters (11 inches)
+        self.wheel_base = 0.2794              # meters
         self.encoder_counts_per_rev = 1968.4  # measured
 
         # ---------------- STATE ----------------
@@ -197,6 +202,15 @@ class CmdVelBridge(Node):
         js.effort = []
 
         self.joint_pub.publish(js)
+
+
+    # ====================================================
+    # LASER CALLBACK - FIX TIMESTAMPS
+    # ====================================================
+    def laser_callback(self, msg: LaserScan):
+        fixed_msg = copy.deepcopy(msg)
+        fixed_msg.header.stamp = self.get_clock().now().to_msg()
+        self.laser_pub.publish(fixed_msg)
 
 
 def main(args=None):
