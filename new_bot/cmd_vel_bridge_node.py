@@ -205,24 +205,31 @@ class CmdVelBridge(Node):
     # ====================================================
     # LASER CALLBACK - FIX TIMESTAMPS
     # ====================================================
-    def laser_callback(self, msg: LaserScan):
-        fixed_msg = copy.deepcopy(msg)
-        fixed_msg.header.stamp = self.get_clock().now().to_msg()
-        self.laser_pub.publish(fixed_msg)
+def laser_callback(self, msg: LaserScan):
+    # Use the exact timestamp of the scan
+    scan_time = msg.header.stamp
 
+    # Publish a synchronized odom→base_link transform at scan time
+    t = TransformStamped()
+    t.header.stamp = scan_time
+    t.header.frame_id = "odom"
+    t.child_frame_id = "base_link"
 
-def main(args=None):
-    rclpy.init(args=args)
-    node = CmdVelBridge()
+    t.transform.translation.x = self.x
+    t.transform.translation.y = self.y
+    t.transform.translation.z = 0.0
 
-    try:
-        rclpy.spin(node)
-    except KeyboardInterrupt:
-        pass
-    finally:
-        node.ser.close()
-        node.destroy_node()
-        rclpy.shutdown()
+    t.transform.rotation.x = 0.0
+    t.transform.rotation.y = 0.0
+    t.transform.rotation.z = math.sin(self.theta / 2.0)
+    t.transform.rotation.w = math.cos(self.theta / 2.0)
+
+    self.tf_broadcaster.sendTransform(t)
+
+    # Now republish the scan with normal (now) timestamp too
+    fixed = copy.deepcopy(msg)
+    fixed.header.stamp = self.get_clock().now().to_msg()
+    self.laser_pub.publish(fixed)
 
 
 if __name__ == '__main__':
