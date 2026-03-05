@@ -60,15 +60,12 @@ class CmdVelBridge(Node):
     # CMD_VEL -> MOTOR COMMAND
     # ====================================================
     def cmd_vel_callback(self, msg):
-
         linear = msg.linear.x
         angular = msg.angular.z
 
-        # Proper differential drive mixing
         left = linear - (angular * self.wheel_base / 2.0)
         right = linear + (angular * self.wheel_base / 2.0)
 
-        # Normalize to [-1, 1] before PWM
         max_input = max(abs(left), abs(right), 1.0)
         left /= max_input
         right /= max_input
@@ -85,40 +82,38 @@ class CmdVelBridge(Node):
     # READ ENCODERS
     # ====================================================
     def read_encoders(self):
-
-        self.ser.write(b'e\r')
-        line = self.ser.readline().decode(errors='ignore').strip()
-
-        parts = line.split()
-
-        if len(parts) != 2:
-            return
-
         try:
+            self.ser.write(b'e\r')
+            line = self.ser.readline().decode(errors='ignore').strip()
+            parts = line.split()
+            if len(parts) != 2:
+                return
+
             left_enc = int(parts[0])
             right_enc = int(parts[1])
-        except ValueError:
+        except Exception as e:
+            self.get_logger().warn(f"Serial read failed: {e}")
             return
 
-        self.update_odometry(left_enc, right_enc)
+        # Always update odom even on first reading
+        self.update_odometry(left_enc, right_enc, first_read=(self.prev_left is None))
 
 
     # ====================================================
     # ODOMETRY UPDATE
     # ====================================================
-    def update_odometry(self, left_enc, right_enc):
-
+    def update_odometry(self, left_enc, right_enc, first_read=False):
         now = self.get_clock().now()
         dt = (now - self.last_time).nanoseconds * 1e-9
         self.last_time = now
-
-        if dt <= 0:
-            return
 
         # First reading guard
         if self.prev_left is None:
             self.prev_left = left_enc
             self.prev_right = right_enc
+            if first_read:
+                # Publish initial odom & TF for SLAM
+                self.publish_odom_and_tf(0.0, 0.0, 0.0, 0.0)
             return
 
         # Convert encoder ticks -> radians
@@ -143,11 +138,20 @@ class CmdVelBridge(Node):
         self.x += d_center * math.cos(self.theta + d_theta / 2.0)
         self.y += d_center * math.sin(self.theta + d_theta / 2.0)
         self.theta += d_theta
-
-        # Normalize theta
         self.theta = math.atan2(math.sin(self.theta), math.cos(self.theta))
 
-        # ================= ODOM MESSAGE =================
+        # Publish odom & TF
+        if dt > 0:
+            self.publish_odom_and_tf(d_center / dt, d_theta / dt, d_center, d_theta)
+
+
+    # ====================================================
+    # PUBLISH ODOM + TF + JOINTS
+    # ====================================================
+    def publish_odom_and_tf(self, vx, vtheta, d_center=0.0, d_theta=0.0):
+        now = self.get_clock().now()
+
+        # ODOM
         odom = Odometry()
         odom.header.stamp = now.to_msg()
         odom.header.frame_id = "odom"
@@ -157,50 +161,44 @@ class CmdVelBridge(Node):
         odom.pose.pose.position.y = self.y
         odom.pose.pose.position.z = 0.0
 
-        # Quaternion
         odom.pose.pose.orientation.x = 0.0
         odom.pose.pose.orientation.y = 0.0
         odom.pose.pose.orientation.z = math.sin(self.theta / 2.0)
         odom.pose.pose.orientation.w = math.cos(self.theta / 2.0)
 
-        odom.twist.twist.linear.x = d_center / dt
-        odom.twist.twist.angular.z = d_theta / dt
+        odom.twist.twist.linear.x = vx
+        odom.twist.twist.angular.z = vtheta
 
-        # Basic covariance (safe defaults)
+        # Covariance
         odom.pose.covariance[0] = 0.01
         odom.pose.covariance[7] = 0.01
         odom.pose.covariance[35] = 0.02
-
         odom.twist.covariance[0] = 0.1
         odom.twist.covariance[35] = 0.1
 
         self.odom_pub.publish(odom)
 
-        # ================= TF =================
+        # TF
         t = TransformStamped()
         t.header.stamp = now.to_msg()
         t.header.frame_id = "odom"
         t.child_frame_id = "base_link"
-
         t.transform.translation.x = self.x
         t.transform.translation.y = self.y
         t.transform.translation.z = 0.0
-
         t.transform.rotation.x = 0.0
         t.transform.rotation.y = 0.0
         t.transform.rotation.z = math.sin(self.theta / 2.0)
         t.transform.rotation.w = math.cos(self.theta / 2.0)
-
         self.tf_broadcaster.sendTransform(t)
 
-        # ================= JOINT STATES =================
+        # JOINTS
         js = JointState()
         js.header.stamp = now.to_msg()
         js.name = ['left_wheel_joint', 'right_wheel_joint']
         js.position = [self.left_wheel_angle, self.right_wheel_angle]
         js.velocity = []
         js.effort = []
-
         self.joint_pub.publish(js)
 
 
